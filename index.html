@@ -1,117 +1,67 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Farmacia · Scanner V4</title>
+<title>Farmacia · Scanner · Retiros</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#eef1f4;color:#17212b;font-family:Arial,sans-serif}
-.app{max-width:540px;margin:auto;min-height:100vh;background:#fff}
-header{background:#b51224;color:#fff;padding:20px 18px;text-align:center}
-header h1{margin:0;font-size:30px}header p{margin:6px 0 0;opacity:.9}
-main{padding:16px}.scanner{position:relative;background:#111;border-radius:18px;overflow:hidden;height:60vh;min-height:360px;max-height:560px}
-#video{width:100%;height:100%;object-fit:cover;display:block}
-.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.38) 0 28%,transparent 28% 72%,rgba(0,0,0,.38) 72%)}
-.frame{position:absolute;left:9%;right:9%;top:28%;height:44%;border:3px solid #fff;border-radius:14px;box-shadow:0 0 0 2px rgba(181,18,36,.35)}
-.line{position:absolute;left:10%;right:10%;top:50%;height:3px;background:#e21b2d;box-shadow:0 0 8px rgba(226,27,45,.8)}
-.tip{position:absolute;bottom:12%;left:0;right:0;text-align:center;color:#fff;font-weight:bold;text-shadow:0 1px 4px #000}
-.status{text-align:center;font-weight:bold;min-height:24px;margin:14px 0}
-button,input{width:100%;font-size:18px;border-radius:12px}button{border:0;padding:16px;margin-top:10px;font-weight:800;cursor:pointer}
-.primary{background:#b51224;color:#fff}.secondary{background:#e8edf1;color:#1c252d}
-.manual{margin-top:20px}.manual input{padding:14px;border:1px solid #cbd3da}
-.result{display:none;margin-top:18px;border:2px solid #dfe5e9;border-radius:16px;padding:18px}.result h2{margin:0 0 12px;font-size:24px}
-.code{font-size:20px;font-weight:bold;word-break:break-all}.stock{font-size:30px;font-weight:900;margin-top:4px}
-.bad{color:#b51224}.ok{color:#19743a}.small{font-size:13px;color:#68737d;margin-top:10px;line-height:1.4}
-#startBtn{display:block}#stopBtn{display:none}footer{text-align:center;padding:18px;color:#77808a;font-size:12px}
+*{box-sizing:border-box}body{margin:0;background:#eef1f4;color:#17212b;font-family:Arial,sans-serif}.app{max-width:540px;margin:auto;min-height:100vh;background:#fff}
+header{background:#b51224;color:#fff;padding:18px;text-align:center}header h1{margin:0;font-size:29px}header p{margin:6px 0 0;opacity:.92}
+main{padding:14px}.scanner{position:relative;background:#111;border-radius:18px;overflow:hidden;height:47vh;min-height:300px;max-height:500px}#video{width:100%;height:100%;object-fit:cover;display:block}.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.38) 0 27%,transparent 27% 73%,rgba(0,0,0,.38) 73%)}.frame{position:absolute;left:8%;right:8%;top:28%;height:44%;border:3px solid #fff;border-radius:14px}.line{position:absolute;left:9%;right:9%;top:50%;height:3px;background:#e21b2d;box-shadow:0 0 8px rgba(226,27,45,.8)}.tip{position:absolute;bottom:10%;left:0;right:0;text-align:center;color:#fff;font-weight:bold;text-shadow:0 1px 4px #000}.status{text-align:center;font-weight:bold;min-height:24px;margin:12px 0}
+button,input,select{width:100%;font-size:18px;border-radius:12px}button{border:0;padding:15px;margin-top:9px;font-weight:800;cursor:pointer}.primary{background:#b51224;color:#fff}.secondary{background:#e8edf1;color:#1c252d}.danger{background:#7e0c18;color:#fff}.success{background:#19743a;color:#fff}button:disabled{opacity:.45;cursor:not-allowed}
+#startBtn{display:block}#stopBtn{display:none}.manual{margin-top:16px}.manual input,input,select{padding:13px;border:1px solid #cbd3da;background:#fff}.section{margin-top:18px}.sectionTitle{font-size:20px;font-weight:900;margin-bottom:8px}.cart{border:2px solid #dfe5e9;border-radius:16px;overflow:hidden}.empty{padding:18px;text-align:center;color:#74808a}.item{padding:12px;border-bottom:1px solid #e2e6e9;display:grid;grid-template-columns:1fr auto;gap:8px}.item:last-child{border-bottom:0}.itemName{font-weight:800;font-size:17px}.itemMeta{font-size:13px;color:#68737d;margin-top:4px}.qty{font-size:20px;font-weight:900;text-align:right}.remove{width:auto;margin:5px 0 0;padding:7px 10px;font-size:14px;background:#f0dadd;color:#8c1020}.total{padding:14px;background:#f5f7f8;font-size:19px;font-weight:900;display:flex;justify-content:space-between}.card{margin-top:18px;border:2px solid #dfe5e9;border-radius:16px;padding:16px}.card h2{margin:0 0 10px;font-size:21px}.card label{display:block;font-size:13px;color:#68737d;margin:10px 0 5px}.small{font-size:13px;color:#68737d;line-height:1.4}.result{display:none;margin-top:16px;border:2px solid #dfe5e9;border-radius:16px;padding:16px}.result h2{margin:0 0 8px;font-size:23px}.stock{font-size:28px;font-weight:900}.ok{color:#19743a}.bad{color:#b51224}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;align-items:flex-end;justify-content:center}.modalBox{background:#fff;width:min(540px,100%);border-radius:22px 22px 0 0;padding:20px}.modalBox h2{margin:0 0 8px}.modalBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.notice{display:none;margin-top:12px;padding:12px;border-radius:12px;background:#fff0f1;color:#9d1020;font-weight:700}footer{text-align:center;padding:18px;color:#77808a;font-size:12px}
 </style>
 </head>
 <body>
 <div class="app">
-<header><h1>📷 SCANNER</h1><p>Farmacia · Lector de códigos</p></header>
+<header><h1>📷 SCANNER</h1><p>Farmacia · Retiros</p></header>
 <main>
-<div class="scanner">
-<video id="video" playsinline muted></video>
-<div class="shade"></div><div class="frame"></div><div class="line"></div>
-<div class="tip">Apuntá el código dentro del recuadro</div>
-</div>
+<div class="scanner"><video id="video" playsinline muted></video><div class="shade"></div><div class="frame"></div><div class="line"></div><div class="tip">Apuntá el código dentro del recuadro</div></div>
 <div id="status" class="status">Cámara detenida</div>
-<button id="startBtn" class="primary">📷 ACTIVAR SCANNER</button>
-<button id="stopBtn" class="secondary">⏹ DETENER</button>
-<div class="manual">
-<div class="small">Si no logra leerlo, ingresá el código manualmente:</div>
-<input id="manualCode" placeholder="Ej.: 20000001" inputmode="numeric">
-<button id="manualBtn" class="secondary">🔎 BUSCAR CÓDIGO</button>
+<button id="startBtn" class="primary">📷 ACTIVAR SCANNER</button><button id="stopBtn" class="secondary">⏹ DETENER</button>
+<div class="manual"><div class="small">Si no logra leerlo, ingresá el código manualmente:</div><input id="manualCode" placeholder="Ej.: 20000001" inputmode="numeric"><button id="manualBtn" class="secondary">🔎 BUSCAR PRODUCTO</button></div>
+
+<div class="section"><div class="sectionTitle">🛒 RETIRO ACTUAL</div><div id="cart" class="cart"><div class="empty">Todavía no agregaste productos.</div></div></div>
+
+<div class="card"><h2>👤 Datos del retiro</h2><label>Nombre de quien retira</label><input id="nombre" placeholder="Ej.: Juan Pérez"><label>Móvil</label><select id="movil"><option value="">Seleccionar móvil...</option><option>Móvil 1</option><option>Móvil 2</option><option>Móvil 3</option><option>Móvil 4</option><option>Combi</option><option>Otro</option></select><div id="notice" class="notice"></div><button id="finishBtn" class="success" disabled>✅ CONFIRMAR RETIRO</button><button id="clearBtn" class="secondary">🗑️ VACIAR LISTA</button></div>
+
+<div id="result" class="result"><h2 id="productName">Producto</h2><div class="small">Código interno</div><div id="productCode" class="itemMeta">—</div><div class="small">Código de barras</div><div id="barcodeCode" class="itemMeta">—</div><div class="small">Stock disponible</div><div id="productStock" class="stock">—</div></div>
+<div class="small" style="margin-top:14px">El Scanner consulta el mismo Google Sheets que Stock. El stock se descuenta solamente al confirmar el retiro.</div>
+</main><footer>Farmacia · Scanner · Retiros</footer>
 </div>
-<div id="result" class="result">
-<h2 id="productName">Producto</h2>
-<div class="small">Código interno</div><div id="productCode" class="code">—</div>
-<div class="small">Código de barras</div><div id="barcodeCode" class="code">—</div>
-<div class="small">Stock actual</div><div id="productStock" class="stock">—</div>
-<div id="productState" class="small"></div>
-<button id="againBtn" class="primary">🔄 ESCANEAR OTRO</button>
-</div>
-<div class="small">El Scanner consulta el mismo Google Sheets que Stock. La cámara funciona directamente desde el navegador mediante HTTPS.</div>
-</main><footer>Farmacia · Scanner V4</footer>
-</div>
+
+<div id="qtyModal" class="modal"><div class="modalBox"><h2 id="qtyName">Producto</h2><div id="qtyStock" class="small"></div><label style="display:block;margin-top:12px">Cantidad a retirar</label><input id="qtyInput" type="number" min="1" step="1" value="1" inputmode="numeric"><div class="modalBtns"><button id="cancelQty" class="secondary">CANCELAR</button><button id="addQty" class="primary">➕ AGREGAR</button></div></div></div>
 
 <script src="https://unpkg.com/@zxing/browser@latest"></script>
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbypgHcnRfcOLBkayy9l47JrNRAvBxOFqi_Z8tL-yKbu4HOBSQG5yD1B3LnwizMwCCr2/exec";
-const video=document.getElementById("video"),statusEl=document.getElementById("status");
-const startBtn=document.getElementById("startBtn"),stopBtn=document.getElementById("stopBtn"),result=document.getElementById("result");
-let stream=null,reader=null,scanning=false,lastCode="",lastTime=0;
+const video=document.getElementById('video'),statusEl=document.getElementById('status'),startBtn=document.getElementById('startBtn'),stopBtn=document.getElementById('stopBtn');
+const result=document.getElementById('result'),cartEl=document.getElementById('cart'),finishBtn=document.getElementById('finishBtn'),notice=document.getElementById('notice');
+const qtyModal=document.getElementById('qtyModal'),qtyName=document.getElementById('qtyName'),qtyStock=document.getElementById('qtyStock'),qtyInput=document.getElementById('qtyInput');
+let stream=null,reader=null,scanning=false,lastCode='',lastTime=0,pendingProduct=null,cart=[];
 function status(t){statusEl.textContent=t}
-async function buscar(codigo){
- codigo=String(codigo||"").trim();if(!codigo){status("Ingresá un código.");return}
- status("🔎 Buscando producto...");
- try{
-  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({accion:"buscarProducto",codigo})});
-  const data=await r.json();
-  if(data&&data.ok&&data.producto){
-   const p=data.producto;
-   document.getElementById("productName").textContent=p.nombre||p.producto||"Producto";
-   document.getElementById("productCode").textContent=p.codigo||"—";
-   document.getElementById("barcodeCode").textContent=p.codigoBarras||codigo;
-   const stock=Number(p.stock||0);document.getElementById("productStock").textContent=stock+" "+(p.unidad||"unidades");
-   const state=document.getElementById("productState");
-   if(stock<=Number(p.minimo||0)){state.textContent="⚠️ STOCK BAJO · Mínimo: "+p.minimo;state.className="small bad"}
-   else{state.textContent="✓ Stock normal · Mínimo: "+p.minimo;state.className="small ok"}
-   result.style.display="block";status("✅ Producto encontrado");
-   if(navigator.vibrate)navigator.vibrate([80,50,80]);stopScanner(false);
-  }else{result.style.display="none";status("❌ No se encontró el producto: "+codigo)}
- }catch(e){console.error(e);status("⚠️ Error al consultar Google Sheets.")}
+function api(payload){return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(r=>r.json())}
+function showNotice(t){notice.textContent=t;notice.style.display=t?'block':'none'}
+async function buscar(codigo,abrirCantidad=true){
+ codigo=String(codigo||'').trim();if(!codigo){status('Ingresá un código.');return}
+ status('🔎 Buscando producto...');
+ try{const data=await api({accion:'buscarProducto',codigo});
+  if(data&&data.ok&&data.producto){const p=data.producto;pendingProduct=p;document.getElementById('productName').textContent=p.nombre||'Producto';document.getElementById('productCode').textContent=p.codigo||'—';document.getElementById('barcodeCode').textContent=p.codigoBarras||codigo;const stock=Number(p.stock||0);document.getElementById('productStock').textContent=stock+' '+(p.unidad||'unidades');result.style.display='block';status('✅ Producto encontrado');if(navigator.vibrate)navigator.vibrate([80,50,80]);stopScanner(false);if(abrirCantidad)openQty(p);}
+  else{status('❌ No se encontró el producto: '+codigo)}
+ }catch(e){console.error(e);status('⚠️ Error al consultar Google Sheets.')}
 }
-async function startScanner(){
- result.style.display="none";
- if(!window.ZXingBrowser){status("⚠️ No se cargó el lector. Revisá Internet y probá de nuevo.");return}
- if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){status("⚠️ El navegador no permite acceder a la cámara.");return}
- try{
-  stopScanner(false);status("📷 Solicitando cámara...");
-  stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}});
-  video.srcObject=stream;await video.play();reader=new ZXingBrowser.BrowserMultiFormatReader();
-  scanning=true;startBtn.style.display="none";stopBtn.style.display="block";status("📷 Buscando código...");
-  scanLoop();
- }catch(e){console.error(e);status("❌ No se pudo activar la cámara. Revisá el permiso del navegador.")}
-}
-async function scanLoop(){
- if(!scanning||!reader)return;
- try{
-  const rs=await reader.decodeOnceFromVideoDevice(undefined,video);
-  if(rs&&rs.text){
-   const value=String(rs.text).trim(),now=Date.now();
-   if(value!==lastCode||now-lastTime>2500){lastCode=value;lastTime=now;status("✅ Código leído: "+value);await buscar(value);return}
-  }
- }catch(e){}
- if(scanning)setTimeout(scanLoop,100);
-}
-function stopScanner(update=true){
- scanning=false;if(reader){try{reader.reset()}catch(e){}reader=null}
- if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;
- startBtn.style.display="block";stopBtn.style.display="none";if(update)status("Cámara detenida");
-}
-startBtn.addEventListener("click",startScanner);stopBtn.addEventListener("click",()=>stopScanner(true));
-document.getElementById("againBtn").addEventListener("click",startScanner);
-document.getElementById("manualBtn").addEventListener("click",()=>buscar(document.getElementById("manualCode").value));
-document.getElementById("manualCode").addEventListener("keydown",e=>{if(e.key==="Enter")buscar(e.target.value)});
+function openQty(p){pendingProduct=p;qtyName.textContent=p.nombre||'Producto';qtyStock.textContent='Stock disponible: '+Number(p.stock||0)+' '+(p.unidad||'unidades');qtyInput.value='1';qtyModal.style.display='flex';setTimeout(()=>qtyInput.focus(),100)}
+function closeQty(){qtyModal.style.display='none';pendingProduct=null}
+function addPending(){if(!pendingProduct)return;const q=Math.floor(Number(qtyInput.value));const stock=Number(pendingProduct.stock||0);if(!Number.isFinite(q)||q<1){qtyStock.textContent='Ingresá una cantidad válida.';return}const existing=cart.find(x=>String(x.codigo)===String(pendingProduct.codigo));const nueva=(existing?existing.cantidad:0)+q;if(nueva>stock){qtyStock.textContent='⚠️ Supera el stock disponible ('+stock+').';return}if(existing){existing.cantidad=nueva;existing.stock=stock}else cart.push({codigo:pendingProduct.codigo,nombre:pendingProduct.nombre,codigoBarras:pendingProduct.codigoBarras||'',cantidad:q,stock:stock,unidad:pendingProduct.unidad||'unidades'});closeQty();renderCart();result.style.display='none';status('✅ Agregado al retiro');setTimeout(()=>startScanner(),250)}
+function renderCart(){if(!cart.length){cartEl.innerHTML='<div class="empty">Todavía no agregaste productos.</div>';finishBtn.disabled=true;return}cartEl.innerHTML=cart.map((x,i)=>'<div class="item"><div><div class="itemName">'+escapeHtml(x.nombre)+'</div><div class="itemMeta">Código '+escapeHtml(x.codigo)+' · '+escapeHtml(x.codigoBarras||'Sin barras')+'</div><button class="remove" onclick="removeItem('+i+')">✖ Quitar</button></div><div class="qty">× '+x.cantidad+'</div></div>').join('')+'<div class="total"><span>Total unidades</span><span>'+cart.reduce((s,x)=>s+x.cantidad,0)+'</span></div>';finishBtn.disabled=false}
+function removeItem(i){cart.splice(i,1);renderCart();status('Producto quitado del retiro.')}
+function clearCart(){cart=[];renderCart();showNotice('');status('Lista vacía.');}
+async function finish(){showNotice('');if(!cart.length){showNotice('El retiro está vacío.');return}const nombre=document.getElementById('nombre').value.trim(),movil=document.getElementById('movil').value;if(!nombre){showNotice('Ingresá el nombre de quien retira.');document.getElementById('nombre').focus();return}if(!movil){showNotice('Seleccioná el móvil.');return}finishBtn.disabled=true;status('⏳ Registrando retiro y actualizando stock...');try{const data=await api({accion:'registrarRetiro',nombre:nombre,movil:movil,usuario:'Farmacia',dispositivo:'Scanner',items:cart.map(x=>({codigo:x.codigo,cantidad:x.cantidad}))});if(data&&data.ok){const id=data.idRetiro;cart=[];renderCart();document.getElementById('nombre').value='';document.getElementById('movil').value='';result.style.display='none';showNotice('');status('✅ RETIRO REGISTRADO · '+id);if(navigator.vibrate)navigator.vibrate([100,60,100,60,180]);}else{showNotice((data&&data.error)||'No se pudo registrar el retiro.');status('❌ No se registró el retiro.');finishBtn.disabled=false}}catch(e){console.error(e);showNotice('Error de conexión con Google Sheets.');status('⚠️ Error de conexión.');finishBtn.disabled=false}}
+function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+async function startScanner(){if(!window.ZXingBrowser){status('⚠️ No se cargó el lector.');return}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){status('⚠️ El navegador no permite acceder a la cámara.');return}try{stopScanner(false);status('📷 Solicitando cámara...');stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});video.srcObject=stream;await video.play();reader=new ZXingBrowser.BrowserMultiFormatReader();scanning=true;startBtn.style.display='none';stopBtn.style.display='block';status('📷 Buscando código...');scanLoop()}catch(e){console.error(e);status('❌ No se pudo activar la cámara. Revisá el permiso.')}}
+async function scanLoop(){if(!scanning||!reader)return;try{const rs=await reader.decodeOnceFromVideoDevice(undefined,video);if(rs&&rs.text){const value=String(rs.text).trim(),now=Date.now();if(value!==lastCode||now-lastTime>2500){lastCode=value;lastTime=now;await buscar(value,true);return}}}catch(e){}if(scanning)setTimeout(scanLoop,100)}
+function stopScanner(update=true){scanning=false;if(reader){try{reader.reset()}catch(e){}reader=null}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;startBtn.style.display='block';stopBtn.style.display='none';if(update)status('Cámara detenida')}
+startBtn.addEventListener('click',startScanner);stopBtn.addEventListener('click',()=>stopScanner(true));document.getElementById('manualBtn').addEventListener('click',()=>buscar(document.getElementById('manualCode').value,true));document.getElementById('manualCode').addEventListener('keydown',e=>{if(e.key==='Enter')buscar(e.target.value,true)});document.getElementById('cancelQty').addEventListener('click',()=>{closeQty();status('Producto no agregado.')});document.getElementById('addQty').addEventListener('click',addPending);qtyInput.addEventListener('keydown',e=>{if(e.key==='Enter')addPending()});document.getElementById('clearBtn').addEventListener('click',clearCart);finishBtn.addEventListener('click',finish);
+renderCart();
 </script>
 </body></html>
