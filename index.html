@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Farmacia · Scanner V4</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef1f4;color:#17212b;font-family:Arial,sans-serif}
+.app{max-width:540px;margin:auto;min-height:100vh;background:#fff}
+header{background:#b51224;color:#fff;padding:20px 18px;text-align:center}
+header h1{margin:0;font-size:30px}header p{margin:6px 0 0;opacity:.9}
+main{padding:16px}.scanner{position:relative;background:#111;border-radius:18px;overflow:hidden;height:60vh;min-height:360px;max-height:560px}
+#video{width:100%;height:100%;object-fit:cover;display:block}
+.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.38) 0 28%,transparent 28% 72%,rgba(0,0,0,.38) 72%)}
+.frame{position:absolute;left:9%;right:9%;top:28%;height:44%;border:3px solid #fff;border-radius:14px;box-shadow:0 0 0 2px rgba(181,18,36,.35)}
+.line{position:absolute;left:10%;right:10%;top:50%;height:3px;background:#e21b2d;box-shadow:0 0 8px rgba(226,27,45,.8)}
+.tip{position:absolute;bottom:12%;left:0;right:0;text-align:center;color:#fff;font-weight:bold;text-shadow:0 1px 4px #000}
+.status{text-align:center;font-weight:bold;min-height:24px;margin:14px 0}
+button,input{width:100%;font-size:18px;border-radius:12px}button{border:0;padding:16px;margin-top:10px;font-weight:800;cursor:pointer}
+.primary{background:#b51224;color:#fff}.secondary{background:#e8edf1;color:#1c252d}
+.manual{margin-top:20px}.manual input{padding:14px;border:1px solid #cbd3da}
+.result{display:none;margin-top:18px;border:2px solid #dfe5e9;border-radius:16px;padding:18px}.result h2{margin:0 0 12px;font-size:24px}
+.code{font-size:20px;font-weight:bold;word-break:break-all}.stock{font-size:30px;font-weight:900;margin-top:4px}
+.bad{color:#b51224}.ok{color:#19743a}.small{font-size:13px;color:#68737d;margin-top:10px;line-height:1.4}
+#startBtn{display:block}#stopBtn{display:none}footer{text-align:center;padding:18px;color:#77808a;font-size:12px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>📷 SCANNER</h1><p>Farmacia · Lector de códigos</p></header>
+<main>
+<div class="scanner">
+<video id="video" playsinline muted></video>
+<div class="shade"></div><div class="frame"></div><div class="line"></div>
+<div class="tip">Apuntá el código dentro del recuadro</div>
+</div>
+<div id="status" class="status">Cámara detenida</div>
+<button id="startBtn" class="primary">📷 ACTIVAR SCANNER</button>
+<button id="stopBtn" class="secondary">⏹ DETENER</button>
+<div class="manual">
+<div class="small">Si no logra leerlo, ingresá el código manualmente:</div>
+<input id="manualCode" placeholder="Ej.: 20000001" inputmode="numeric">
+<button id="manualBtn" class="secondary">🔎 BUSCAR CÓDIGO</button>
+</div>
+<div id="result" class="result">
+<h2 id="productName">Producto</h2>
+<div class="small">Código interno</div><div id="productCode" class="code">—</div>
+<div class="small">Código de barras</div><div id="barcodeCode" class="code">—</div>
+<div class="small">Stock actual</div><div id="productStock" class="stock">—</div>
+<div id="productState" class="small"></div>
+<button id="againBtn" class="primary">🔄 ESCANEAR OTRO</button>
+</div>
+<div class="small">El Scanner consulta el mismo Google Sheets que Stock. La cámara funciona directamente desde el navegador mediante HTTPS.</div>
+</main><footer>Farmacia · Scanner V4</footer>
+</div>
+
+<script src="https://unpkg.com/@zxing/browser@latest"></script>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbypgHcnRfcOLBkayy9l47JrNRAvBxOFqi_Z8tL-yKbu4HOBSQG5yD1B3LnwizMwCCr2/exec";
+const video=document.getElementById("video"),statusEl=document.getElementById("status");
+const startBtn=document.getElementById("startBtn"),stopBtn=document.getElementById("stopBtn"),result=document.getElementById("result");
+let stream=null,reader=null,scanning=false,lastCode="",lastTime=0;
+function status(t){statusEl.textContent=t}
+async function buscar(codigo){
+ codigo=String(codigo||"").trim();if(!codigo){status("Ingresá un código.");return}
+ status("🔎 Buscando producto...");
+ try{
+  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({accion:"buscarProducto",codigo})});
+  const data=await r.json();
+  if(data&&data.ok&&data.producto){
+   const p=data.producto;
+   document.getElementById("productName").textContent=p.nombre||p.producto||"Producto";
+   document.getElementById("productCode").textContent=p.codigo||"—";
+   document.getElementById("barcodeCode").textContent=p.codigoBarras||codigo;
+   const stock=Number(p.stock||0);document.getElementById("productStock").textContent=stock+" "+(p.unidad||"unidades");
+   const state=document.getElementById("productState");
+   if(stock<=Number(p.minimo||0)){state.textContent="⚠️ STOCK BAJO · Mínimo: "+p.minimo;state.className="small bad"}
+   else{state.textContent="✓ Stock normal · Mínimo: "+p.minimo;state.className="small ok"}
+   result.style.display="block";status("✅ Producto encontrado");
+   if(navigator.vibrate)navigator.vibrate([80,50,80]);stopScanner(false);
+  }else{result.style.display="none";status("❌ No se encontró el producto: "+codigo)}
+ }catch(e){console.error(e);status("⚠️ Error al consultar Google Sheets.")}
+}
+async function startScanner(){
+ result.style.display="none";
+ if(!window.ZXingBrowser){status("⚠️ No se cargó el lector. Revisá Internet y probá de nuevo.");return}
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){status("⚠️ El navegador no permite acceder a la cámara.");return}
+ try{
+  stopScanner(false);status("📷 Solicitando cámara...");
+  stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}});
+  video.srcObject=stream;await video.play();reader=new ZXingBrowser.BrowserMultiFormatReader();
+  scanning=true;startBtn.style.display="none";stopBtn.style.display="block";status("📷 Buscando código...");
+  scanLoop();
+ }catch(e){console.error(e);status("❌ No se pudo activar la cámara. Revisá el permiso del navegador.")}
+}
+async function scanLoop(){
+ if(!scanning||!reader)return;
+ try{
+  const rs=await reader.decodeOnceFromVideoDevice(undefined,video);
+  if(rs&&rs.text){
+   const value=String(rs.text).trim(),now=Date.now();
+   if(value!==lastCode||now-lastTime>2500){lastCode=value;lastTime=now;status("✅ Código leído: "+value);await buscar(value);return}
+  }
+ }catch(e){}
+ if(scanning)setTimeout(scanLoop,100);
+}
+function stopScanner(update=true){
+ scanning=false;if(reader){try{reader.reset()}catch(e){}reader=null}
+ if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;
+ startBtn.style.display="block";stopBtn.style.display="none";if(update)status("Cámara detenida");
+}
+startBtn.addEventListener("click",startScanner);stopBtn.addEventListener("click",()=>stopScanner(true));
+document.getElementById("againBtn").addEventListener("click",startScanner);
+document.getElementById("manualBtn").addEventListener("click",()=>buscar(document.getElementById("manualCode").value));
+document.getElementById("manualCode").addEventListener("keydown",e=>{if(e.key==="Enter")buscar(e.target.value)});
+</script>
+</body></html>
